@@ -1,0 +1,21 @@
+# 本地运行辅助目录
+/.agents/
+/.codex/
+
+# Lyra-sdk 不再由外层仓库跟踪（firmware 独立构建，本地如需整板构建自行保留）
+/RK3506/Lyra-sdk/
+
+# 大体积发布包（不纳入版本控制）
+/RK3506/*.tar.gz
+/RK3506/*.tar.bz2
+/RK3506/*.zip
+/RK3506/*.7z
+
+# 通用临时/编辑器文件
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
