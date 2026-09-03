@@ -1,3 +1,7 @@
 [submodule "RK3506/lyra-firmware"]
 	path = RK3506/lyra-firmware
 	url = https://github.com/Ryan-5853/lyra-firmware.git
+
+[submodule "Flight"]
+	path = Flight
+	url = https://github.com/Ryan-5853/Flight.git
