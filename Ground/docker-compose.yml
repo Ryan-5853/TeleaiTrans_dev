@@ -1,0 +1,83 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    environment:
+      GROUND_DB_PATH: data/ground.db
+      GROUND_ARTIFACT_DIR: data/artifacts
+      GROUND_AIRCRAFT_CONFIG: config/aircraft.yaml
+      # 容器内飞机（模拟器）访问后端的地址；真实板如需直连请改成局域网地址
+      GROUND_PUBLIC_BASE: http://backend:8000
+    volumes:
+      - ./backend/app:/app/backend/app:ro
+      - ./data:/app/data
+    command:
+      - uvicorn
+      - app.main:app
+      - --app-dir
+      - /app/backend
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - /app/backend/app
+    networks: [ground-net]
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/pyproject.toml
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      target: dev
+    ports:
+      - "8081:80"
+    environment:
+      VITE_PROXY_TARGET: http://backend:8000
+      VITE_WS_PROXY_TARGET: ws://backend:8000
+    depends_on: [backend]
+    networks: [ground-net]
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend/src
+          target: /src/src
+        - action: sync
+          path: ./frontend/vite.config.ts
+          target: /src/vite.config.ts
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
+
+  simulator:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    profiles: ["sim"]
+    command:
+      - python
+      - /app/simulator/plane_sim.py
+      - --base
+      - ws://backend:8000
+      - --count
+      - "3"
+      - --prefix
+      - sim
+    depends_on: [backend]
+    volumes:
+      - ./simulator/plane_sim.py:/app/simulator/plane_sim.py:ro
+    networks: [ground-net]
+    develop:
+      watch:
+        - action: sync
+          path: ./simulator/plane_sim.py
+          target: /app/simulator/plane_sim.py
+
+networks:
+  ground-net:

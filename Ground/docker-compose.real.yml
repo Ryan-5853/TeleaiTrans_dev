@@ -1,0 +1,48 @@
+name: ground-real
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    image: ground-backend:real
+    restart: unless-stopped
+    environment:
+      GROUND_DB_PATH: data/ground.db
+      GROUND_ARTIFACT_DIR: data/artifacts
+      GROUND_AIRCRAFT_CONFIG: config/aircraft.yaml
+      # 飞机 agent 回连下载固件时使用的地址（必须是服务器局域网 IP，不能是 127.0.0.1）
+      GROUND_PUBLIC_BASE: http://${GROUND_HOST_IP:?请在 .env.real 中设置服务器局域网 IP}:${GROUND_WEB_PORT:-8080}
+    volumes:
+      - ground_data:/app/data
+      - ./config/aircraft.yaml:/app/config/aircraft.yaml:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks: [ground-real-net]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    image: ground-frontend:real
+    restart: unless-stopped
+    ports:
+      - "${GROUND_WEB_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [ground-real-net]
+
+networks:
+  ground-real-net:
+
+volumes:
+  ground_data:

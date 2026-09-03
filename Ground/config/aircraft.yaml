@@ -1,0 +1,15 @@
+# 机群静态注册表。
+# 带 ssh 的飞机即使还没有飞机端 agent，也能在 WebUI 中看到并执行真实 M0
+# 热更新（SSH-only 通道）；遥测/参数/维护命令需要后续飞机端 agent 按
+# docs/protocol.md 接入 plane-link 通道。
+#
+# aircraft:
+#   - id: lyra-01
+#     name: 实验机 01
+#     model: lyra-zero-w-amp
+#     ssh:
+#       host: 192.168.8.21
+#       user: root
+#       key_path: ~/.ssh/id_ed25519
+
+aircraft: []
