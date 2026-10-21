@@ -5,3 +5,7 @@
 [submodule "Flight"]
 	path = Flight
 	url = https://github.com/Ryan-5853/Flight.git
+
+[submodule "Dock_ground"]
+	path = Dock_ground
+	url = https://github.com/Ryan-5853/Dock_ground.git
